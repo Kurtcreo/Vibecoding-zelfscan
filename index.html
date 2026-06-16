@@ -1,0 +1,124 @@
+<style>
+  .scan-wrap { padding: 1.5rem 0; font-family: var(--font-sans); max-width: 620px; }
+  .scan-title { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 0.25rem; }
+  .scan-sub { font-size: 14px; color: var(--color-text-secondary); margin: 0 0 1.5rem; }
+  .item { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 12px; cursor: pointer; transition: border-color 0.15s; }
+  .item:hover { border-color: var(--color-border-secondary); }
+  .item.done { border-color: #3B6D11; background: #EAF3DE; }
+  .item-top { display: flex; align-items: flex-start; gap: 12px; }
+  .check { width: 22px; height: 22px; min-width: 22px; border-radius: 50%; border: 1.5px solid var(--color-border-secondary); background: var(--color-background-secondary); display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.15s; }
+  .item.done .check { background: #3B6D11; border-color: #3B6D11; }
+  .check i { font-size: 13px; color: white; opacity: 0; transition: opacity 0.15s; }
+  .item.done .check i { opacity: 1; }
+  .item-label { font-size: 15px; font-weight: 500; color: var(--color-text-primary); line-height: 1.4; }
+  .item.done .item-label { color: #27500A; }
+  .item-toelichting { font-size: 13px; color: var(--color-text-secondary); margin: 8px 0 0 34px; line-height: 1.6; display: none; }
+  .item.done .item-toelichting { color: #3B6D11; display: block; }
+  .item-toelichting.nee { display: block; color: var(--color-text-secondary); }
+  .progress-bar-wrap { background: var(--color-background-secondary); border-radius: 99px; height: 6px; margin: 1.5rem 0 0.5rem; overflow: hidden; }
+  .progress-bar { height: 6px; border-radius: 99px; background: #639922; width: 0%; transition: width 0.3s; }
+  .progress-label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+  .bevestiging { display: none; background: #EAF3DE; border: 0.5px solid #639922; border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; margin-top: 1rem; }
+  .bevestiging.zichtbaar { display: flex; align-items: flex-start; gap: 12px; }
+  .bevestiging i { font-size: 22px; color: #3B6D11; margin-top: 2px; }
+  .bevestiging-tekst { font-size: 15px; color: #27500A; line-height: 1.6; }
+  .bevestiging-tekst strong { font-weight: 500; }
+  .disclaimer { font-size: 12px; color: var(--color-text-tertiary); margin-top: 1.5rem; padding-top: 1rem; border-top: 0.5px solid var(--color-border-tertiary); line-height: 1.6; }
+  .disclaimer i { font-size: 13px; vertical-align: -1px; margin-right: 4px; }
+</style>
+
+<div class="scan-wrap">
+  <h2 class="sr-only">Zelfscan: ben je klaar om te starten met de cursus vibecoding?</h2>
+  <p class="scan-title">Zelfscan: ben je klaar om te starten?</p>
+  <p class="scan-sub">Vink aan wat van toepassing is. Klik op een vraag om de toelichting te zien.</p>
+
+  <div class="items" id="items"></div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="balk"></div></div>
+  <p class="progress-label" id="teller">0 van de 5 afgevinkt</p>
+
+  <div class="bevestiging" id="bevestiging">
+    <i class="ti ti-circle-check" aria-hidden="true"></i>
+    <div class="bevestiging-tekst">
+      <strong>Je bent klaar om te starten.</strong><br>
+      Alle onderdelen staan op groen. Ga verder naar Module 1 en zet je idee om in een concreet app-concept.
+    </div>
+  </div>
+
+  <p class="disclaimer"><i class="ti ti-lock" aria-hidden="true"></i>Deze zelfscan wordt niet bewaard. Je antwoorden verdwijnen zodra je de pagina sluit of herlaadt.</p>
+</div>
+
+<script>
+const vragen = [
+  {
+    label: "Ik heb toegang tot een AI-tool.",
+    ja: "Goed. ChatGPT, Gemini of Google AI Studio — een gratis account volstaat om aan de slag te gaan.",
+    nee: "Maak een gratis account aan op chatgpt.com of gemini.google.com. Dat duurt maar een paar minuten."
+  },
+  {
+    label: "Ik heb een GitHub-account, of ik ga er een aanmaken.",
+    ja: "Prima. GitHub gebruik je later in de cursus om je code te bewaren en te publiceren. Een gratis account volstaat.",
+    nee: "Geen probleem. Je hebt GitHub pas nodig vanaf Module 5. Maak een gratis account aan op github.com wanneer het zover is."
+  },
+  {
+    label: "Ik heb al een eerste idee voor een toepassing.",
+    ja: "Mooi startpunt. In Module 1 ga je dit idee verder uitwerken en aanscherpen.",
+    nee: "Dat is geen probleem. Op de pagina 'Wat ga je bouwen?' vind je voorbeelden die je op weg helpen. Bladel er eens door voor je verdergaat."
+  },
+  {
+    label: "Ik heb toegang tot een computer met een moderne browser.",
+    ja: "Perfect. Chrome, Edge en Firefox werken allemaal goed.",
+    nee: "Bouwen op een smartphone of tablet is omslachtig. Zoek indien mogelijk een laptop of desktop om mee te werken."
+  },
+  {
+    label: "Ik weet voor wie ik de app wil maken.",
+    ja: "Goed. Wie de gebruiker is, is een van de belangrijkste vragen bij het bouwen. Je bent al goed op weg.",
+    nee: "Nog niet zeker? Denk eens aan een concrete situatie: wie loopt er nu tegen een probleem aan dat jouw app zou kunnen oplossen?"
+  }
+];
+
+const container = document.getElementById('items');
+const balk = document.getElementById('balk');
+const teller = document.getElementById('teller');
+const bevestiging = document.getElementById('bevestiging');
+const state = new Array(vragen.length).fill(false);
+
+vragen.forEach((v, i) => {
+  const el = document.createElement('div');
+  el.className = 'item';
+  el.setAttribute('role', 'checkbox');
+  el.setAttribute('aria-checked', 'false');
+  el.setAttribute('tabindex', '0');
+  el.innerHTML = `
+    <div class="item-top">
+      <div class="check"><i class="ti ti-check" aria-hidden="true"></i></div>
+      <span class="item-label">${v.label}</span>
+    </div>
+    <div class="item-toelichting" id="toel-${i}">${v.nee}</div>
+  `;
+  el.addEventListener('click', () => toggle(i, el, v));
+  el.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(i, el, v); } });
+  container.appendChild(el);
+});
+
+function toggle(i, el, v) {
+  state[i] = !state[i];
+  el.classList.toggle('done', state[i]);
+  el.setAttribute('aria-checked', state[i]);
+  const toel = document.getElementById('toel-' + i);
+  toel.textContent = state[i] ? v.ja : v.nee;
+  toel.className = 'item-toelichting' + (state[i] ? '' : ' nee');
+  update();
+}
+
+function update() {
+  const n = state.filter(Boolean).length;
+  balk.style.width = (n / vragen.length * 100) + '%';
+  teller.textContent = n + ' van de ' + vragen.length + ' afgevinkt';
+  if (n === vragen.length) {
+    bevestiging.classList.add('zichtbaar');
+  } else {
+    bevestiging.classList.remove('zichtbaar');
+  }
+}
+</script>
